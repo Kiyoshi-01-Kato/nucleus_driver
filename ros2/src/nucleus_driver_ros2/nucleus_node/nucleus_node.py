@@ -32,6 +32,8 @@ class NucleusNode(Node):
     def __init__(self):
         super().__init__("nucleus_node")
 
+        self._imu_count = 0
+
         self.nucleus_driver = NucleusDriver()
 
         self.connect_tcp_service = self.create_service(ConnectTcp, "nucleus_node/connect_tcp", self.connect_tcp_callback)
@@ -305,6 +307,7 @@ class NucleusNode(Node):
                 ins_packet.turn_rate_z = packet["turnRateZ"]
 
                 try:
+
                     self.ins_publisher.publish(ins_packet)
                 except RCLError:
                     pass
@@ -341,6 +344,9 @@ class NucleusNode(Node):
                 imu_packet.temperature = packet["temperature"]
 
                 try:
+                    self._imu_count += 1
+                    if self._imu_count % 2 != 0:
+                        continue
                     self.imu_publisher.publish(imu_packet)
                 except RCLError:
                     pass
